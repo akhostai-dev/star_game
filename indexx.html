@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clicking the Falling Stars 🎮</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+        overflow: hidden;
+        color: white;
+        text-align: center;
+    }
+
+    h1 {
+        margin: 10px 0;
+    }
+
+    #info {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    #gameArea {
+        position: relative;
+        width: 100%;
+        height: 80vh;
+        border-top: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .star {
+        position: absolute;
+        font-size: 32px;
+        cursor: pointer;
+        animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+        from { top: -40px; }
+        to { top: 100%; }
+    }
+
+    #gameOver {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 28px;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 12px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #ffd700;
+        color: #000;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #ffcc00;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>⭐ Click the Falling Stars twice⭐</h1>
+
+<div id="info">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">5</span></div>
+</div>
+
+<div id="gameArea">
+    <div id="gameOver">
+        <div>💀 Game Over 💀</div>
+        <div style="margin-top:10px;">Final Score: <span id="finalScore"></span></div>
+        <button onclick="restartGame()">Restart Game</button>
+    </div>
+</div>
+
+<script>
+    const gameArea = document.getElementById("gameArea");
+    const scoreEl = document.getElementById("score");
+    const livesEl = document.getElementById("lives");
+    const gameOverScreen = document.getElementById("gameOver");
+    const finalScoreEl = document.getElementById("finalScore");
+
+    let score = 0;
+    let lives = 5;
+    let gameSpeed = 3;
+    let gameInterval;
+
+    function createStar() {
+        const star = document.createElement("div");
+        star.className = "star";
+        star.innerHTML = "⭐";
+        star.style.left = Math.random() * (window.innerWidth - 40) + "px";
+        star.style.animationDuration = gameSpeed + "s";
+
+        star.onclick = () => {
+            score++;
+            scoreEl.textContent = score;
+            star.remove();
+        };
+
+        star.addEventListener("animationend", () => {
+            if (gameArea.contains(star)) {
+                star.remove();
+                loseLife();
+            }
+        });
+
+        gameArea.appendChild(star);
+    }
+
+    function loseLife() {
+        lives--;
+        livesEl.textContent = lives;
+        if (lives <= 0) {
+            endGame();
+        }
+    }
+
+    function startGame() {
+        gameInterval = setInterval(() => {
+            createStar();
+            if (gameSpeed > 1) gameSpeed -= 0.05;
+        }, 800);
+    }
+
+    function endGame() {
+        clearInterval(gameInterval);
+        document.querySelectorAll(".star").forEach(s => s.remove());
+        finalScoreEl.textContent = score;
+        gameOverScreen.style.display = "flex";
+    }
+
+    function restartGame() {
+        score = 0;
+        lives = 5;
+        gameSpeed = 3;
+        scoreEl.textContent = score;
+        livesEl.textContent = lives;
+        gameOverScreen.style.display = "none";
+        startGame();
+    }
+
+    startGame();
+</script>
+
+</body>
+</html>
